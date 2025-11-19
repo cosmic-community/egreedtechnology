@@ -14,8 +14,13 @@ export async function POST(request: Request) {
       )
     }
     
-    // Send email
-    await sendContactEmail({ name, email, message })
+    // Send email (will gracefully handle missing RESEND_API_KEY)
+    try {
+      await sendContactEmail({ name, email, message })
+    } catch (emailError) {
+      console.error('Email sending failed, but continuing:', emailError)
+      // Continue with saving to Cosmic even if email fails
+    }
     
     // Save to Cosmic
     await cosmic.objects.insertOne({
